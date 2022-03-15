@@ -4,6 +4,11 @@ public class Wheel : MonoBehaviour
 {
     Rigidbody rb;
 
+    public bool wheelFrontLeft;
+    public bool wheelFrontRight;
+    public bool wheelRearLeft;
+    public bool wheelRearRight;
+
 
     [Header("Suspension")]
     public float restLength;
@@ -19,10 +24,18 @@ public class Wheel : MonoBehaviour
     float springForce;
     float damperForce;
 
-    Vector3 suspensionForce;
 
     [Header("Wheel")]
     public float wheelRaduis;
+    public float steerAngle;
+    public float steerTime;
+
+    Vector3 suspensionForce;
+    Vector3 wheelVelocityLS;
+    float fX;
+    float fY;
+    float wheelAngle;
+
 
     void Start()
     {
@@ -30,6 +43,13 @@ public class Wheel : MonoBehaviour
 
         minLength = restLength - springTravel;
         maxLength = restLength + springTravel;
+    }
+
+    void Update(){
+        wheelAngle = Mathf.Lerp(wheelAngle, steerAngle, steerTime * Time.deltaTime);
+        transform.localRotation = Quaternion.Euler(Vector3.up * wheelAngle);
+
+        Debug.DrawRay(transform.position, -transform.up *( springLength + wheelRaduis), Color.green);
     }
 
     void FixedUpdate()
@@ -46,7 +66,11 @@ public class Wheel : MonoBehaviour
             damperForce     = damperStiffness * springVelocity;
             suspensionForce = (springForce + damperForce) * transform.up;
 
-            rb.AddForceAtPosition(suspensionForce, hit.point);
+            wheelVelocityLS = transform.InverseTransformDirection(rb.GetPointVelocity(hit.point));
+            fX = Input.GetAxis("Vertical") * springForce;
+            fY = wheelVelocityLS.x * springForce;
+
+            rb.AddForceAtPosition(suspensionForce + (fX * transform.forward) + (fY * -transform.right), hit.point);
         }
     }
 }
