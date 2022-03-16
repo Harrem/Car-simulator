@@ -4,6 +4,8 @@ public class Wheel : MonoBehaviour
 {
     Rigidbody rb;
 
+    public GameObject wheel;
+
     public bool wheelFrontLeft;
     public bool wheelFrontRight;
     public bool wheelRearLeft;
@@ -48,6 +50,10 @@ public class Wheel : MonoBehaviour
     void Update(){
         wheelAngle = Mathf.Lerp(wheelAngle, steerAngle, steerTime * Time.deltaTime);
         transform.localRotation = Quaternion.Euler(Vector3.up * wheelAngle);
+
+        //wheelobjectmovementand setup
+        wheel.transform.localRotation = Quaternion.Euler(Vector3.up * wheelAngle);
+        wheel.transform.position = transform.position - new Vector3(0, springLength + wheelRaduis);
 
         Debug.DrawRay(transform.position, -transform.up *( springLength + wheelRaduis), Color.green);
     }
